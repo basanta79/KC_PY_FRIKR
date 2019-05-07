@@ -1,0 +1,10 @@
+# Ignoring virtual environments
+env/
+venv/
+
+# Ignoring IDE files
+.idea/
+.vscode/
+
+# Ignoring config files
+.env

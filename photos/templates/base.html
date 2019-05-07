@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block head_title %} FRIKR {% endblock %}</title>
+</head>
+<body>
+
+    <header>
+        <h3> FRIKR </h3>
+        <nav>
+            <a href="{% url 'home' %}">Home</a>
+        </nav>
+        <hr>
+    </header>
+
+    <main>
+        <h1>{% block main_title %} {% endblock %}</h1>
+        <div> {% block main_content %} {% endblock %} </div>
+    </main>
+
+    <footer>
+        <hr>
+        Frikr &copy; {% now 'Y' %}. All rights reserved.
+    </footer>
+</body>
+</html>
