@@ -8,3 +8,6 @@ venv/
 
 # Ignoring config files
 .env
+
+# compiled files
+__pycache__/
