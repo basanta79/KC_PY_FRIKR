@@ -4,20 +4,29 @@ from django.contrib import messages
 
 
 # Create your views here.
+from users.forms import LoginForm
+
 
 def login(request):
     if request.user.is_authenticated:
         return redirect('home')
+
     if request.method == 'POST':
-        username = request.POST['usr']
-        password = request.POST['pwd']
-        user = authenticate(username=username, password=password)
-        if user is None:
-            messages.error(request, 'usuario/contraseña incorrecto')
-        else:
-            django_login(request, user)
-            return redirect('home')
-    return render(request, 'users/login.html')
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('usr')
+            password = form.cleaned_data.get('pwd')
+            user = authenticate(username=username, password=password)
+            if user is None:
+                messages.error(request, 'usuario/contraseña incorrecto')
+            else:
+                django_login(request, user)
+                return redirect('home')
+    else:
+        form = LoginForm()
+
+    context = { 'form': form }
+    return render(request, 'users/login.html', context)
 
 
 def logout(request):
