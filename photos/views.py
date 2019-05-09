@@ -6,7 +6,7 @@ from photos.models import Photo
 
 def latest_photos(request):
     # Recuperar las últimas fotos de la base de datos
-    photos = Photo.objects.all().order_by('-modification_date')
+    photos = Photo.objects.filter(visibility=Photo.PUBLIC).all().order_by('-modification_date')
 
 
     # definir el contexto par pasarle las fotos a la plantilla
