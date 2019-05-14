@@ -1,47 +1,64 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.http import HttpResponse, HttpResponseNotFound
 from django.shortcuts import render, get_object_or_404
 from django.contrib import messages
+from django.views import View
 
 from photos.forms import PhotoForm
 from photos.models import Photo
 
 
-def latest_photos(request):
-    # Recuperar las últimas fotos de la base de datos
-    photos = Photo.objects.filter(visibility=Photo.PUBLIC).all().order_by('-modification_date')
+class LatestPhotosView(View):
+
+    def get(self, request):
+        # Recuperar las últimas fotos de la base de datos
+        photos = Photo.objects.filter(visibility=Photo.PUBLIC).order_by('-modification_date').select_related('owner')
+
+        # Creamos el contexto para pasarle las fotos a la plantilla
+        context = {'latest_photos': photos[:5]}
+
+        # Crear respuesta HTML con las fotos
+        html = render(request, 'photos/latest.html', context)
+
+        # Devolver la respuesta HTTP
+        return HttpResponse(html)
 
 
-    # definir el contexto par pasarle las fotos a la plantilla
-    context = { 'latest_photos': photos[:3]}
-    print(photos)
+class PhotoDetailView(View):
 
-    # crear una respuesta html
-    html = render(request, 'photos/latest.html', context)
+    def get(self, request, pk):
+        # Recuperar la foto seleccionada de la base de datos
+        photo = get_object_or_404(Photo.objects.select_related('owner'), pk=pk, visibility=Photo.PUBLIC)
 
-    # devolver la respuesta http
-    return HttpResponse(html)
+        # Crear un contexto para pasar la información a la plantilla
+        context = {'photo': photo}
 
+        # Renderizar plantilla
+        html = render(request, 'photos/detail.html', context)
 
-def photo_detail(request, pk):
-    # Recuperar la foto seleccionada de la base de datos
-    # try:
-    #     photo = Photo.objects.get(pk=pk)
-    # except Photo.DoesNotExist:
-    #     return HttpResponseNotFound('Photo does not exist')
-    # Lo que esta comentado arriba es lo mismo que la linia de abajo
-    photo = get_object_or_404(Photo, pk=pk)
-
-    # Crear un contexto para pasar la información a la plantilla
-    context = {'photo': photo}
-
-    # Renderizar la plantilla
-    html = render(request, 'photos/detail.html', context)
-
-    # Devolver la respuesta HTTP
-    return HttpResponse(html)
+        # Devolver respuesta HTTP
+        return HttpResponse(html)
 
 
-def new_photo(request):
+class NewPhotoView(LoginRequiredMixin, View):
+
+    def get(self, request):
+        form = PhotoForm()
+        context = {'form': form}
+        return render(request, 'photos/new.html', context)
+
+    def post(self, request):
+        photo = Photo()
+        photo.owner = request.user
+        form = PhotoForm(request.POST, instance=photo)
+        if form.is_valid():
+            new_photo = form.save()
+            messages.success(request, 'Foto creada correctamente con ID {0}'.format(new_photo.id))
+            form=PhotoForm()
+        context = {'form': form}
+        return render(request, 'photos/new.html', context)
+
+"""def new_photo(request):
     if request.method=='POST':
         form = PhotoForm(request.POST)
         if form.is_valid():
@@ -51,4 +68,6 @@ def new_photo(request):
     else:
         form = PhotoForm()
     context = {'form': form}
-    return render(request, 'photos/new.html', context)
+    return render(request, 'photos/new.html', context)"""
+
+
