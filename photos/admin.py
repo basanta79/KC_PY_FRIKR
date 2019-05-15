@@ -2,14 +2,36 @@ from django.contrib import admin
 from django.utils.safestring import mark_safe
 
 from photos.models import Photo
-# Register your models here.
+
+
+admin.site.site_title = 'FRIKR Admin Site'
+admin.site.site_header = 'FRIKR Admin Site'
+admin.site.index_title = 'FRIKR Admin Site'
+
 
 @admin.register(Photo)
 class PhotoAdmin(admin.ModelAdmin):
 
+    list_select_related = ['owner'] # Para definir tablas relacionadas de forma que haga join con las queries
     list_display = ['get_img','name', 'license', 'visibility', 'get_owner_name']
     list_filter = ['license', 'visibility', 'owner']
     search_fields = ['name', 'description', 'url', 'owner__first_name', 'owner__last_name']
+    readonly_fields = ['get_img', 'get_owner_name', 'creation_date', 'modification_date']
+    fieldsets = [
+        [None, {
+            'fields': ['name', 'get_img', 'url']
+        }],
+        ['Properties', {
+            'fields': ['owner', 'license', 'visibility']
+        }],
+        ['Description', {
+            'fields': ['description']
+        }],
+        ['Dates', {
+            'fields': ['creation_date', 'modification_date'],
+            'classes': ['collapse']
+        }],
+    ]
 
 
     def get_owner_name(self, obj):
