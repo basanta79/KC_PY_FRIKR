@@ -18,7 +18,7 @@ from django.urls import path
 
 from photos.views import LatestPhotosView, PhotoDetailView, NewPhotoView, PhotoListView
 from users.views import login, logout
-from users.api import  UsersAPI
+from users.api import  UsersAPI, UserDetailAPI
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -30,6 +30,9 @@ urlpatterns = [
     path('photos/<int:pk>/', PhotoDetailView.as_view(), name='photo_detail'),
     path('', LatestPhotosView.as_view(), name='home'),
     path('photos/list/', PhotoListView.as_view(), name='photo_list'),
-    #API
-    path('api/users/', UsersAPI.as_view(), name='users_api')
+
+    # API
+    path('api/users/', UsersAPI.as_view(), name='users_api'),
+    path('api/users/<int:pk>', UserDetailAPI.as_view(), name='user_detail_api')
+
 ]
